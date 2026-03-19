@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ScheduleEntry } from "@/lib/mockData";
 
@@ -18,7 +18,7 @@ const dayColors: Record<string, string[]> = {
   Sábado: ["#6366f1", "#4f46e5"],     // Indigo
 };
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -29,7 +29,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { 
     opacity: 0, 
     y: 50, 

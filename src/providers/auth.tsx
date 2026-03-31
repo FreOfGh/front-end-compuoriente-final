@@ -1,12 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase"; // Tu cliente de Supabase
 
 export type User = {
   id: string;
   name: string;
   email: string;
   program: string;
+  progress?: number;
 };
 
 type AuthContextValue = {
@@ -14,34 +16,72 @@ type AuthContextValue = {
   isLoggedIn: boolean;
   login: (user: User) => void;
   logout: () => void;
+  isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "edu-app-auth";
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // --- ESCUCHA DE SESIÓN DE SUPABASE ---
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        setUser(JSON.parse(raw) as User);
+    // 1. Verificar sesión activa al cargar la app
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Si hay sesión, traemos los datos del perfil (nombre, programa)
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profile) {
+          setUser({
+            id: profile.id,
+            name: profile.name,
+            email: profile.email,
+            program: profile.program,
+            progress: profile.progress
+          });
+        }
       }
-    } catch {
-      // ignore
-    }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
+
+    // 2. Escuchar cambios (Login, Logout, Token Expired)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        // Recargar perfil al entrar
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+        
+        if (profile) setUser(profile);
+      }
+      
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = (nextUser: User) => {
     setUser(nextUser);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    window.localStorage.removeItem(STORAGE_KEY);
   };
 
   const value = useMemo(
@@ -50,11 +90,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoggedIn: Boolean(user),
       login,
       logout,
+      isLoading,
     }),
-    [user]
+    [user, isLoading]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!isLoading && children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

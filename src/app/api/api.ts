@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "compuoriente-final-production.up.railway.app/api",
+  baseURL: "https://compuoriente-final-production.up.railway.app/api",
 });
 
 api.interceptors.request.use((config) => {

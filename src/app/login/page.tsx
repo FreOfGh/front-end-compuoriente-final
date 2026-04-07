@@ -1,5 +1,5 @@
 "use client";
-
+  import api from "../api/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/providers/auth";
@@ -10,7 +10,7 @@ export default function LoginPage() {
   const { isLoggedIn, login } = useAuth();
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const [nroDocumento, setNroDocumento] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,44 +33,36 @@ export default function LoginPage() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
+  setIsLoading(true);
 
-    try {
-      // 1. Intentar autenticación en Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  try {
+    const { data } = await api.post("/login", {
+      nro_documento: nroDocumento,
+      password,
+    });
 
-      if (authError) throw new Error("Credenciales incorrectas. Verifica tu correo y contraseña.");
+    // ✅ Guardar token primero
+    localStorage.setItem("token", data.access_token);
+    
+    // ✅ Llamar login solo con el token (el provider hará el fetch a /me)
+    await login(data.access_token);
+    
+    // ✅ Desactivar loading antes de redirigir
+    setIsLoading(false);
+    router.replace("/dashboard");
 
-      // 2. Obtener los datos del perfil desde tu tabla public.profiles
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", authData.user.id)
-        .single();
-
-      if (profileError) throw new Error("Error al recuperar el perfil del estudiante.");
-
-      // 3. Iniciar sesión en el contexto global
-      login({
-        id: profile.id,
-        name: profile.name,
-        email: profile.email,
-        program: profile.program,
-        progress: profile.progress
-      });
-
-      router.replace("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-      setIsLoading(false);
+  } catch (err: any) {
+    setIsLoading(false);
+    if (err.response) {
+      setError(err.response.data?.message || "Error al iniciar sesión");
+    } else {
+      setError("Error de conexión con el servidor");
     }
-  };
+  }
+};
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 flex items-center justify-center p-4">
@@ -114,14 +106,14 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div className="group">
                 <label className="text-[10px] font-bold text-blue-300/50 uppercase tracking-widest ml-1">Correo Institucional</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
-                  placeholder="ejemplo@compuoriente.edu"
-                  required
-                />
+<input
+  type="text"
+  value={nroDocumento}
+  onChange={(e) => setNroDocumento(e.target.value)}
+  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+  placeholder="Número de documento"
+  required
+/>
               </div>
 
               <div className="group">

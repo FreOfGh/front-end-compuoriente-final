@@ -5,9 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { useAuth } from "@/providers/auth";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
-
+import api from "../../api/api";
 export default function SubjectDetailPage() {
   const { subjectId } = useParams() as { subjectId: string };
   const { isLoggedIn, user } = useAuth();
@@ -25,46 +24,25 @@ export default function SubjectDetailPage() {
       return;
     }
 
-    const fetchFullSubjectData = async () => {
-      setIsLoading(true);
-      try {
-        // 1. Obtener datos de la materia y progreso del estudiante
-        const { data: subjectData, error: subError } = await supabase
-          .from("subjects")
-          .select(`
-            *,
-            student_subjects (progress)
-          `)
-          .eq("id", subjectId)
-          .single();
+const fetchFullSubjectData = async () => {
+  setIsLoading(true);
 
-        if (subError) throw subError;
+  try {
+    const { data } = await api.get(`/modulos/${subjectId}`);
 
-        // 2. Obtener los temas (clases) de esa materia
-        const { data: themesData, error: themesError } = await supabase
-          .from("themes")
-          .select("*")
-          .eq("subject_id", subjectId)
-          .order("order_index", { ascending: true });
+    setSubject(data.subject);
+    setThemes(data.themes);
 
-        if (themesError) throw themesError;
+    if (data.themes.length > 0) {
+      setSelectedTheme(data.themes[0]);
+    }
 
-        setSubject({
-          ...subjectData,
-          progress: subjectData.student_subjects[0]?.progress || 0
-        });
-        setThemes(themesData);
-        
-        // Seleccionar el primer tema por defecto
-        if (themesData.length > 0) {
-          setSelectedTheme(themesData[0]);
-        }
-      } catch (err) {
-        console.error("Error cargando detalle de materia:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  } catch (err) {
+    console.error("Error cargando módulo:", err);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     fetchFullSubjectData();
   }, [subjectId, isLoggedIn, router]);

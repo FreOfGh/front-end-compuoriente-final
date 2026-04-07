@@ -122,30 +122,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Sección de Horario Personalizado */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Mi Horario Semanal
-          </h2>
-
-          <div className="bg-white/5 rounded-3xl border border-white/10 overflow-hidden shadow-xl">
-            {isDataLoading ? (
-              <div className="p-20 flex justify-center">
-                <div className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : formattedSchedule.length > 0 ? (
-              <ScheduleList entries={formattedSchedule} />
-            ) : (
-              <div className="p-16 text-center">
-                <p className="text-slate-500 text-sm italic">No hay clases programadas para tu carrera esta semana.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
         {/* Accesos Directos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link href="/materias" className="group p-6 bg-blue-600 hover:bg-blue-500 rounded-2xl transition-all shadow-lg shadow-blue-900/40 text-center">

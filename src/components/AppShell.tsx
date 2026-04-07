@@ -1,240 +1,306 @@
 "use client";
 
 import Link from "next/link";
+import { Wifi, Home, BookOpen, LogOut, User, GraduationCap, ChevronRight, VideoIcon,CheckCheckIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabase"; // Asegúrate de tener tu cliente configurado
-
+import api from "../app/api/api";
 const navItems = [
   { 
-    href: "/dashboard", 
+    href: "/", 
     label: "Inicio",
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    )
+    icon: Home,
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/20"
   },
   { 
     href: "/materias", 
     label: "Módulos",
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    )
+    icon: BookOpen,
+    color: "text-blue-400",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/20"
   },
   { 
     href: "/aulas-virtuales", 
     label: "Aulas virtuales",
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    )
+    icon: Wifi,
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/20"
+  },
+    { 
+    href: "/grabaciones", 
+    label: "Clases grabadas",
+    icon: VideoIcon,
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/20"
+  },
+  { 
+    href: "/notas", 
+    label: "Notas",
+    icon: CheckCheckIcon,
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/20"
   },
 ];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- FUNCIÓN DE LOGOUT CON SUPABASE ---
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await api.get("/me");
+        setUser(data);
+        setProgress(data.progress || 0);
+      } catch (err) {
+        console.error("Error cargando usuario:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, [setUser]);
+
   const onLogout = async () => {
     try {
-      await supabase.auth.signOut(); // Cierra sesión en Supabase
-      logout(); // Limpia el estado global de tu AuthProvider
+      await api.post("/logout");
+      localStorage.removeItem("token");
+      logout();
       router.replace("/login");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error("Error logout:", error);
     }
   };
 
+  // Animación de entrada para el progreso
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        // La animación se maneja con CSS
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, progress]);
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950">
-      {/* Video de fondo educativo */}
-      <div className="fixed inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="h-full w-full object-cover opacity-40"
-          poster="https://images.pexels.com/photos/5940841/pexels-photo-5940841.jpeg"
-        >
-          <source
-            src="https://videos.pexels.com/video-files/5940841/5940841-hd_1920_1080_24fps.mp4"
-            type="video/mp4"
-          />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-blue-950/90" />
-      </div>
-
-      {/* Partículas flotantes */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-            }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Header dinámico */}
-      <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`sticky top-0 z-50 transition-all duration-500 ${
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
+      
+      {/* HEADER MODERNO SIN BLUR */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
           isScrolled 
-            ? "bg-white/10 backdrop-blur-xl border-b border-white/10 shadow-2xl" 
-            : "bg-transparent"
+            ? "bg-slate-900/95 border-slate-800 shadow-2xl shadow-black/50" 
+            : "bg-slate-900 border-transparent"
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <motion.div className="flex items-center gap-4" whileHover={{ scale: 1.02 }}>
-            <div className="relative group cursor-pointer">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000" />
-              <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-md flex items-center justify-center overflow-hidden">
-                <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            
+            {/* Logo y Brand */}
+            <div className="flex items-center gap-3">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg opacity-50 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-700">
+                  <GraduationCap className="w-6 h-6 text-blue-400" />
+                </div>
               </div>
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent uppercase">
-                Compuoriente
-              </h1>
-              <p className="text-[10px] text-blue-300/80 font-bold tracking-[0.2em]">POLITÉCNICO</p>
-            </div>
-          </motion.div>
-
-          <div className="flex items-center gap-4">
-            <motion.div className="hidden sm:flex flex-col items-end">
-              <p className="text-sm font-semibold text-white">
-                {user?.name || "Estudiante"}
-              </p>
-              <p className="text-[10px] uppercase tracking-tighter text-blue-200/60 font-bold">
-                {user?.program || "Sin programa asignado"}
-              </p>
-            </motion.div>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onLogout}
-              className="group relative px-5 py-2 rounded-full overflow-hidden border border-white/10"
-            >
-              <div className="absolute inset-0 bg-red-600/10 group-hover:bg-red-600 transition-colors" />
-              <span className="relative text-xs font-bold text-white flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                SALIR
-              </span>
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Layout principal */}
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 lg:flex-row">
-        <aside className="w-full shrink-0 lg:w-72">
-          <nav className="sticky top-24 space-y-2">
-            <motion.div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-2">
-              <div className="px-4 py-3 border-b border-white/5 mb-2">
-                <p className="text-[10px] font-bold text-blue-300/50 uppercase tracking-widest">
-                  Menú Principal
+              <div>
+                <h1 className="text-lg font-bold text-white tracking-tight">
+                  Compuoriente
+                </h1>
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                  Politécnico
                 </p>
               </div>
-              <ul className="space-y-1 p-2">
-                {navItems.map((item, index) => {
-                  const active = pathname === item.href;
-                  return (
-                    <li key={item.href}>
-                      <Link href={item.href}>
-                        <motion.div
-                          className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3.5 transition-all ${
-                            active 
-                              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
-                              : "text-slate-400 hover:text-white hover:bg-white/5"
-                          }`}
-                          onHoverStart={() => setHoveredNav(item.href)}
-                          onHoverEnd={() => setHoveredNav(null)}
-                        >
-                          <div className={active ? "text-white" : "text-blue-400/50"}>
-                            {item.icon}
-                          </div>
-                          <span className="font-bold text-xs uppercase tracking-wide">{item.label}</span>
-                        </motion.div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </motion.div>
+            </div>
 
-            {/* Progreso dinámico del estudiante */}
-            <motion.div className="rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/10 to-purple-600/10 backdrop-blur-xl p-5">
-              <p className="text-[10px] font-bold text-blue-300/50 uppercase mb-3">Tu Progreso</p>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white font-bold text-lg">{user?.progress || 0}%</span>
-                <span className="text-[10px] text-blue-200/50 italic">Semestre 2026-I</span>
+            {/* User Info y Logout */}
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-white leading-tight">
+                    {user?.name || "Estudiante"}
+                  </p>
+                  <p className="text-xs text-slate-400 leading-tight">
+                    {user?.program || "Sin programa"}
+                  </p>
+                </div>
               </div>
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${user?.progress || 0}%` }}
-                  className="h-full bg-gradient-to-r from-blue-400 to-purple-400" 
-                />
-              </div>
-            </motion.div>
-          </nav>
-        </aside>
+            </div>
+          </div>
+        </div>
+      </header>
 
-        {/* Contenido principal */}
-        <main className="w-full min-h-[calc(100vh-200px)]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 lg:p-8"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+      {/* LAYOUT PRINCIPAL */}
+      <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-6">
+          
+          {/* SIDEBAR ELEGANTE */}
+          <aside className="w-full lg:w-72 shrink-0">
+            <div className="sticky top-24 space-y-6">
+              
+              {/* Navegación */}
+              <nav className="bg-slate-900 rounded-2xl border border-slate-800 p-2 shadow-xl shadow-black/20">
+                <div className="px-4 py-3 border-b border-slate-800 mb-2">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Menú Principal
+                  </p>
+                </div>
+                <ul className="space-y-1">
+                  {navItems.map((item) => {
+                    const active = pathname === item.href;
+                    const Icon = item.icon;
+                    
+                    return (
+                      <li key={item.href}>
+                        <Link href={item.href}>
+                          <motion.div
+                            whileHover={{ x: 4 }}
+                            className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                              active 
+                                ? `${item.bgColor} ${item.borderColor} border` 
+                                : "hover:bg-slate-800/50 border border-transparent"
+                            }`}
+                          >
+                            <div className={`p-2 rounded-lg ${
+                              active ? "bg-slate-950" : "bg-slate-800 group-hover:bg-slate-700"
+                            } transition-colors`}>
+                              <Icon className={`w-5 h-5 ${active ? item.color : "text-slate-400 group-hover:text-slate-300"}`} />
+                            </div>
+                            <div className="flex-1">
+                              <span className={`text-sm font-semibold ${
+                                active ? "text-white" : "text-slate-400 group-hover:text-slate-200"
+                              }`}>
+                                {item.label}
+                              </span>
+                            </div>
+                            {active && (
+                              <motion.div
+                                layoutId="activeIndicator"
+                                className={`w-1.5 h-1.5 rounded-full ${item.color.replace('text-', 'bg-')}`}
+                              />
+                            )}
+                            <ChevronRight className={`w-4 h-4 transition-transform ${
+                              active ? "text-slate-600 rotate-90" : "text-slate-600 opacity-0 group-hover:opacity-100"
+                            }`} />
+                          </motion.div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+
+              {/* Progreso Mejorado */}
+              <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl shadow-black/20">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Progreso Académico
+                    </p>
+                    <p className="text-2xl font-bold text-white">
+                      {progress}%
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-2 border-blue-500/30 flex items-center justify-center">
+                    <span className="text-xs font-bold text-blue-400">
+                      {Math.round(progress / 10)}/100%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Barra de progreso animada */}
+                <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                    className="absolute h-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 rounded-full"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </motion.div>
+                </div>
+
+                <div className="mt-4 flex justify-between text-xs text-slate-500">
+                  <span>Iniciado</span>
+                  <span className="text-slate-400">Meta: 100%</span>
+                </div>
+
+            
+              </div>
+
+
+            </div>
+          </aside>
+
+          {/* CONTENIDO PRINCIPAL */}
+          <main className="flex-1 min-h-[calc(100vh-200px)]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-slate-900 rounded-2xl border border-slate-800 p-6 lg:p-8 shadow-xl shadow-black/20 min-h-full"
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
 
-      <footer className="relative z-10 mt-auto border-t border-white/10 bg-black/20 py-6">
-        <div className="mx-auto max-w-7xl px-4 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-          <p>© 2026 Politécnico Compuoriente</p>
-          <p>Marinilla - Antioquia</p>
+      {/* FOOTER */}
+      <footer className="border-t border-slate-800 bg-slate-900 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-slate-600" />
+              <span className="text-sm font-semibold text-slate-400">
+                Politécnico Compuoriente
+              </span>
+            </div>
+            <div className="flex items-center gap-6 text-xs text-slate-500">
+              <span>© 2026 Todos los derechos reservados</span>
+              <span className="hidden sm:inline">•</span>
+              <span>Marinilla, Antioquia</span>
+            </div>
+          </div>
         </div>
       </footer>
+
+      {/* Estilos para animación shimmer */}
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
     </div>
   );
 }

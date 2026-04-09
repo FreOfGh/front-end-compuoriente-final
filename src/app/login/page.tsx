@@ -39,23 +39,33 @@ const handleLogin = async (e: React.FormEvent) => {
   setIsLoading(true);
 
   try {
-    const { data } = await api.post("/login", {
+    console.log("📤 Enviando:", {
       nro_documento: nroDocumento,
       password,
     });
 
-    // ✅ Guardar token primero
-    localStorage.setItem("token", data.access_token);
-    
-    // ✅ Llamar login solo con el token (el provider hará el fetch a /me)
-    await login(data.access_token);
-    
-    // ✅ Desactivar loading antes de redirigir
+    const response = await api.post("/login", {
+      nro_documento: nroDocumento,
+      password,
+    });
+
+    console.log("📥 RESPUESTA COMPLETA:", response);
+    console.log("📥 DATA:", response.data);
+
+    localStorage.setItem("token", response.data.access_token);
+
+    await login(response.data.access_token);
+
     setIsLoading(false);
     router.replace("/dashboard");
 
   } catch (err: any) {
+    console.log("❌ ERROR COMPLETO:", err);
+    console.log("❌ RESPONSE:", err.response);
+    console.log("❌ DATA:", err.response?.data);
+
     setIsLoading(false);
+
     if (err.response) {
       setError(err.response.data?.message || "Error al iniciar sesión");
     } else {
@@ -63,7 +73,6 @@ const handleLogin = async (e: React.FormEvent) => {
     }
   }
 };
-
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 flex items-center justify-center p-4">
       {/* Fondo Dinámico con Video */}

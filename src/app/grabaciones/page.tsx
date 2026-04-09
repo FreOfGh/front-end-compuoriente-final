@@ -34,7 +34,7 @@ export default function Recordings() {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/recordings")
+    fetch("localhost:8000/api/recordings")
       .then((res) => res.json())
       .then((data) => {
         // Simular datos extra si no vienen del backend

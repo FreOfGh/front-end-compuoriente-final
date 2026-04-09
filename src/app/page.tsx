@@ -125,7 +125,7 @@ export default function DashboardPage() {
         {/* Accesos Directos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link href="/materias" className="group p-6 bg-blue-600 hover:bg-blue-500 rounded-2xl transition-all shadow-lg shadow-blue-900/40 text-center">
-            <span className="text-white font-bold block group-hover:scale-105 transition-transform">IR A MIS CLASES</span>
+            <span className="text-white font-bold block group-hover:scale-105 transition-transform">IR A MIS MODULOS</span>
           </Link>
           <Link href="/aulas-virtuales" className="group p-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all text-center">
             <span className="text-slate-300 font-bold block group-hover:text-white">AULAS VIRTUALES</span>

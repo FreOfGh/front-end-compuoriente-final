@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://compuoriente-final-production.up.railway.app/api",
+  baseURL: "http://localhost:8000/api",
   withCredentials: true, // ¡ESTO ES VITAL! Permite enviar cookies y cabeceras de seguridad
   withXSRFToken: true,   // Solo si usas Laravel 10.x o 11.x (maneja el token CSRF automáticamente)
 });

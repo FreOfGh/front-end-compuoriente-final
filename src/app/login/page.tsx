@@ -114,7 +114,7 @@ const handleLogin = async (e: React.FormEvent) => {
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-4">
               <div className="group">
-                <label className="text-[10px] font-bold text-blue-300/50 uppercase tracking-widest ml-1">Correo Institucional</label>
+                <label className="text-[10px] font-bold text-blue-300/50 uppercase tracking-widest ml-1">Número de cédula</label>
 <input
   type="text"
   value={nroDocumento}

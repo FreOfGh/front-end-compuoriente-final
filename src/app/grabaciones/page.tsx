@@ -34,7 +34,7 @@ export default function Recordings() {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("localhost:8000/api/recordings")
+    fetch("https://compuoriente-final-production.up.railway.app/api/grabaciones")
       .then((res) => res.json())
       .then((data) => {
         // Simular datos extra si no vienen del backend

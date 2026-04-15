@@ -126,6 +126,7 @@ export default function AulasVirtualesPage() {
             "microphone",
             "camera",
             "chat",
+            "desktop",
             "raisehand",
             "tileview",
             "hangup",

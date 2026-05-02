@@ -13,7 +13,7 @@ const rooms = [
   { id: "aula-33", label: "Aula 3.3" },
   { id: "aula-31", label: "Aula 3.1", live: true  },
   { id: "aula-32", label: "Aula 3.4", live: true  },
-  { id: "auditorio", label: "Auditorio" },
+  { id: "auditorio", label: "Auditorio", live:true },
 ];
 
 function loadJitsiScript(src: string) {

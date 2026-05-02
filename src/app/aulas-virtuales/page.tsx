@@ -50,7 +50,7 @@ export default function AulasVirtualesPage() {
   const [showLoader, setShowLoader] = useState(false);
   const [loaderProgress, setLoaderProgress] = useState(0);
   const [participants, setParticipants] = useState(0);
-
+  const isMobile = typeof window !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent);
   const jitsiRef = useRef<any>(null);
   const loaderIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const loaderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,105 +111,86 @@ export default function AulasVirtualesPage() {
     });
   };
 
-  const handleJoin = async () => {
-    setIsLoading(true);
-    setMessage("Iniciando conexión segura...");
+const handleJoin = async () => {
+  setIsLoading(true);
+  setMessage("Iniciando conexión...");
 
-    try {
-      const tokenResp = await fetch(
-        `/api/jitsi-token?room=${encodeURIComponent(selectedRoom)}`
-      );
+  try {
+    const tokenResp = await fetch(
+      `/api/jitsi-token?room=${encodeURIComponent(selectedRoom)}`
+    );
 
-      if (!tokenResp.ok) {
-        throw new Error("Error al generar el token de acceso");
-      }
+    if (!tokenResp.ok) throw new Error("Error generando token");
 
-      const { token, room } = await tokenResp.json();
+    const { token, room } = await tokenResp.json();
+    const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || "8x8.vc";
 
-      await Promise.all([
-        loadJitsiScript("https://8x8.vc/external_api.js"),
-        startLoader(),
-      ]);
-
-      const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || "8x8.vc";
-      const container = document.getElementById("jitsi-container");
-
-      if (!container) throw new Error("No existe el contenedor");
-
-      if (jitsiRef.current) {
-        jitsiRef.current.dispose();
-        jitsiRef.current = null;
-      }
-
-      container.innerHTML = "";
-
-      const api = new (window as any).JitsiMeetExternalAPI(domain, {
-        roomName: room,
-        parentNode: container,
-        jwt: token,
-        lang: "es",
-        userInfo: {
-          displayName: "Estudiante",
-        },
-        configOverwrite: {
-          startWithAudioMuted: false,
-          startWithVideoMuted: false,
-          prejoinPageEnabled: false,
-          defaultLanguage: "es",
-        },
-        interfaceConfigOverwrite: {
-          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-          TOOLBAR_BUTTONS: [
-            "microphone",
-            "camera",
-            "chat",
-            "desktop",
-            "raisehand",
-            "tileview",
-            "hangup",
-            "fullscreen",
-            "recording",
-          ],
-        },
-      });
-
-      jitsiRef.current = api;
-
-      api.addEventListener("videoConferenceJoined", () => {
-        setMessage("Conectado correctamente");
-        setIsJoined(true);
-        setShowLoader(false);
-      });
-
-      api.addEventListener("videoConferenceLeft", () => {
-        setMessage("Has salido de la sala");
-        setIsJoined(false);
-      });
-
-      api.addEventListener("readyToClose", () => {
-        api.dispose();
-        setIsJoined(false);
-      });
-
-      api.addEventListener("participantJoined", () => {
-        setParticipants((prev) => prev + 1);
-      });
-
-      api.addEventListener("participantLeft", () => {
-        setParticipants((prev) => Math.max(0, prev - 1));
-      });
-
-      setRoomUrl(`https://${domain}/${room}`);
-    } catch (error) {
-      console.error(error);
-      setMessage("Error: " + (error as Error).message);
-      setShowLoader(false);
-      setLoaderProgress(0);
-    } finally {
-      setIsLoading(false);
-      clearLoaderTimers();
+    // 🔥 MOBILE → REDIRECT (CLAVE)
+    if (isMobile) {
+      window.location.href = `https://${domain}/${room}`;
+      return;
     }
-  };
+
+    // 🔥 DESKTOP → iframe
+    setShowLoader(true);
+
+    await loadJitsiScript("https://8x8.vc/external_api.js");
+
+    const container = document.getElementById("jitsi-container");
+    if (!container) throw new Error("No container");
+
+    container.innerHTML = "";
+
+    const api = new (window as any).JitsiMeetExternalAPI(domain, {
+      roomName: room,
+      parentNode: container,
+      jwt: token,
+      lang: "es",
+
+      configOverwrite: {
+        prejoinPageEnabled: true,
+        startWithAudioMuted: false,
+        startWithVideoMuted: false,
+        resolution: 720,
+      },
+
+      interfaceConfigOverwrite: {
+        DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+        TOOLBAR_BUTTONS: [
+          "microphone",
+          "camera",
+          "chat",
+          "desktop",
+          "raisehand",
+          "tileview",
+          "hangup",
+          "fullscreen",
+        ],
+      },
+    });
+
+    jitsiRef.current = api;
+
+    api.addEventListener("videoConferenceJoined", () => {
+      setIsJoined(true);
+      setShowLoader(false);
+      setMessage("Conectado correctamente");
+    });
+
+    api.addEventListener("videoConferenceLeft", () => {
+      setIsJoined(false);
+      setMessage("Has salido de la sala");
+    });
+
+    setRoomUrl(`https://${domain}/${room}`);
+
+  } catch (err) {
+    setMessage("Error: " + (err as Error).message);
+    setShowLoader(false);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLeave = () => {
     if (jitsiRef.current) {
@@ -346,7 +327,7 @@ export default function AulasVirtualesPage() {
           </div>
 
           {/* Jitsi responsive */}
-          <div className="relative w-full rounded-2xl sm:rounded-3xl border border-white/20 bg-black overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          <div className="relative w-full rounded-2xl sm:rounded-3xl border border-white/20 bg-black overflow-hidden relative w-full h-[70vh] sm:h-[75vh] lg:h-[80vh]"}>
 
             <div id="jitsi-container" className="h-full w-full" />
 

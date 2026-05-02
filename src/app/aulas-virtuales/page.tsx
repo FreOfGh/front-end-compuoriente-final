@@ -92,7 +92,7 @@ export default function AulasVirtualesPage() {
     setLoaderProgress(0);
 
     const startTime = Date.now();
-    const duration = 5000;
+    const duration = 7000;
 
     loaderIntervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;

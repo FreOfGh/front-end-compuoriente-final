@@ -110,6 +110,8 @@ export default function AulasVirtualesPage() {
         parentNode: container,
         jwt: token,
 
+        lang: "es",
+
         userInfo: {
           displayName: "Estudiante",
         },

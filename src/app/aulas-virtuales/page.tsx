@@ -109,6 +109,8 @@ export default function AulasVirtualesPage() {
       loaderTimeoutRef.current = setTimeout(() => {
         clearInterval(loaderIntervalRef.current!);
         setLoaderProgress(100);
+        setIsJoined(true);
+        setShowLoader(false);
         resolve();
       }, duration);
     });

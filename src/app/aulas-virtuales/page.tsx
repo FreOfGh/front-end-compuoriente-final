@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import {video, mic, TvMinimalPlay} from "lucide-react"
+import {Video, Mic, TvMinimalPlay} from "lucide-react"
 import AppShell from "@/components/AppShell";
 
 const rooms = [

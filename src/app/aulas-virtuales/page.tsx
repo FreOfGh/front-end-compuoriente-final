@@ -75,7 +75,7 @@ export default function AulasVirtualesPage() {
       jitsiRef.current.dispose();
       jitsiRef.current = null;
     }
-    setIsJoined(false);
+    setIsJoined(true);
     setRoomUrl(null);
     setShowLoader(false);
     setLoaderProgress(0);

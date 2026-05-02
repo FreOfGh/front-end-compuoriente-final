@@ -52,10 +52,10 @@ export async function GET(req: NextRequest) {
                 user: {
                     "hidden-from-recorder": false,
                     moderator: true, 
-                    name: "simontorressaldarriaga81",
-                    id: "google-oauth2|111776156845659139664",
+                    name: "estudiante",
+                    id: "google-oauth2|101276508057175193011",
                     avatar: "",
-                    email: "simontorressaldarriaga81@gmail.com"
+                    email: "apodexsoftware@gmail.com"
                 }
             },
             room: "*"

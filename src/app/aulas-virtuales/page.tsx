@@ -171,6 +171,7 @@ export default function AulasVirtualesPage() {
             "tileview",
             "hangup",
             "fullscreen",
+            "recording",
           ],
         },
       });

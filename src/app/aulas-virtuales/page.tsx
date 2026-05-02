@@ -75,7 +75,7 @@ export default function AulasVirtualesPage() {
       jitsiRef.current.dispose();
       jitsiRef.current = null;
     }
-    setIsJoined(true);
+    setIsJoined(false);
     setRoomUrl(null);
     setShowLoader(false);
     setLoaderProgress(0);
@@ -105,6 +105,7 @@ export default function AulasVirtualesPage() {
         clearInterval(loaderIntervalRef.current!);
         setLoaderProgress(100);
         setShowLoader(false);
+        setIsJoined(true);
         resolve();
       }, duration);
     });

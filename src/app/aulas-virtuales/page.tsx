@@ -260,7 +260,6 @@ export default function AulasVirtualesPage() {
   <Mic className="w-4 h-4 text-red-500 inline-block" />, 
   saluda por educación y de esta manera el profesor registrará la asistencia...
 </p>
-                </p>
               </div>
             )}
 

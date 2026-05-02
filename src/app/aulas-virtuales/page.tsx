@@ -253,7 +253,7 @@ export default function AulasVirtualesPage() {
             {showLoader && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-10">
                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-white/20 border-t-blue-500 mb-3" />
-<p className="text-sm text-slate-300 flex flex-wrap items-center gap-1">
+<p className="text-sm text-slate-300 flex flex-wrap items-center px-8">
   Mantén activa la cámara 
   <Video className="w-4 h-4 text-red-500 inline-block" /> 
   y el micrófono 

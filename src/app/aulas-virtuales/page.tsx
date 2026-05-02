@@ -139,7 +139,7 @@ export default function AulasVirtualesPage() {
       // DESKTOP → Loader de 5s + iframe
       await Promise.all([
         loadJitsiScript("https://8x8.vc/external_api.js"),
-        startLoader(5000),
+        startLoader(3000),
       ]);
 
       const container = document.getElementById("jitsi-container");
@@ -381,7 +381,7 @@ export default function AulasVirtualesPage() {
                     <Video className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 inline" />
                     cámara y
                     <Mic className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400 inline" />
-                    micrófono. Saluda al ingresar para que el profesor registre tu asistencia.
+                    micrófono. Saluda al ingresar para que el profesor registre tu asistencia, porfavor ingresa a la reunión una vez el sombreado del microfono pase de gris a negro.
                   </p>
                 </div>
 

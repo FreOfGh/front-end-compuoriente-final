@@ -241,7 +241,7 @@ export default function AulasVirtualesPage() {
 
           {/* Estado */}
           <div className="rounded-xl border border-white/10 bg-slate-900/50 p-3 text-sm">
-            <p>{message}     
+            <p>{message}</p>     
           </div>
 
           {/* Jitsi responsive */}

@@ -80,7 +80,7 @@ export default function AulasVirtualesPage() {
   const handleJoin = async () => {
     setIsLoading(true);
     setShowLoader(true);
-    setMessage("Preparando aula virtual...");
+    setMessage("Manten activa la cámara  y el microfono ...");
 
     try {
       const tokenResp = await fetch(
@@ -241,7 +241,7 @@ export default function AulasVirtualesPage() {
 
           {/* Estado */}
           <div className="rounded-xl border border-white/10 bg-slate-900/50 p-3 text-sm">
-            <p>{message}</p>
+            <p>{message}      <Video className="w-4 h-4 text-red-500" /> <Mic className="w-4 h-4 text-red-500" /> </p>
           </div>
 
           {/* Jitsi responsive */}

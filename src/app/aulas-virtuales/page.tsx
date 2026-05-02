@@ -80,7 +80,7 @@ export default function AulasVirtualesPage() {
   const handleJoin = async () => {
     setIsLoading(true);
     setShowLoader(true);
-    setMessage("Manten activa la cámara  y el microfono, saluda por educación y de esta manera el profesor registrara la asistencia...");
+    setMessage("Cargando");
 
     try {
       const tokenResp = await fetch(
@@ -241,7 +241,7 @@ export default function AulasVirtualesPage() {
 
           {/* Estado */}
           <div className="rounded-xl border border-white/10 bg-slate-900/50 p-3 text-sm">
-            <p>{message}      <Video className="w-4 h-4 text-red-500" /> <Mic className="w-4 h-4 text-red-500" /> </p>
+            <p>{message}     
           </div>
 
           {/* Jitsi responsive */}
@@ -253,8 +253,13 @@ export default function AulasVirtualesPage() {
             {showLoader && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-10">
                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-white/20 border-t-blue-500 mb-3" />
-                <p className="text-sm text-slate-300">
-                  Preparando aula virtual...
+<p className="text-sm text-slate-300 flex flex-wrap items-center gap-1">
+  Mantén activa la cámara 
+  <Video className="w-4 h-4 text-red-500 inline-block" /> 
+  y el micrófono 
+  <Mic className="w-4 h-4 text-red-500 inline-block" />, 
+  saluda por educación y de esta manera el profesor registrará la asistencia...
+</p>
                 </p>
               </div>
             )}

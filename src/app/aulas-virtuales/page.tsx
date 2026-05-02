@@ -139,7 +139,7 @@ export default function AulasVirtualesPage() {
       // DESKTOP → Loader de 5s + iframe
       await Promise.all([
         loadJitsiScript("https://8x8.vc/external_api.js"),
-        startLoader(3000),
+        startLoader(7000),
       ]);
 
       const container = document.getElementById("jitsi-container");

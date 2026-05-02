@@ -4,12 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 
 const rooms = [
-  { id: "aula-21", label: "No habilitada" },
+  { id: "aula-21", label: "Aula 2.1" },
   { id: "aula-22", label: "Aula 2.2" },
-  { id: "aula-23", label: "No habilitada" },
-  { id: "aula-24", label: "No habilitada" },
-  { id: "aula-25", label: "No habilitada" },
-  { id: "aula-33", label: "No habilitada" },
+  { id: "aula-23", label: "Aula 2.3" },
+  { id: "aula-24", label: "Aula 2.4" },
+  { id: "aula-25", label: "Aula 2-5" },
+  { id: "aula-33", label: "Aula 3-3" },
   { id: "aula-31", label: "Aula 3.1" },
   { id: "aula-32", label: "Aula 3.4" },
   { id: "auditorio", label: "Auditorio" },

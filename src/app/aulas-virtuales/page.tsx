@@ -80,7 +80,7 @@ export default function AulasVirtualesPage() {
   const handleJoin = async () => {
     setIsLoading(true);
     setShowLoader(true);
-    setMessage("Manten activa la cámara  y el microfono ...");
+    setMessage("Manten activa la cámara  y el microfono, saluda por educación y de esta manera el profesor registrara la asistencia...");
 
     try {
       const tokenResp = await fetch(

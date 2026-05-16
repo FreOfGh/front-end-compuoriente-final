@@ -150,7 +150,7 @@ const fetchFullSubjectData = async () => {
               >
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-white mb-2">{selectedTheme.title}</h2>
-                  <p className="text-slate-400 text-sm leading-relaxed">{selectedTheme.description}</p>
+                  <p className="text-slate-400 text-sm leading-relaxed">{selectedTheme.resumen}</p>
                 </div>
 
                 <div className="grid gap-6">

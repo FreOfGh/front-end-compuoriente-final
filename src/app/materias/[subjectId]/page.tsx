@@ -7,6 +7,7 @@ import { useAuth } from "@/providers/auth";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import api from "../../api/api";
+
 export default function SubjectDetailPage() {
   const { subjectId } = useParams() as { subjectId: string };
   const { isLoggedIn, user } = useAuth();
@@ -24,25 +25,24 @@ export default function SubjectDetailPage() {
       return;
     }
 
-const fetchFullSubjectData = async () => {
-  setIsLoading(true);
+    const fetchFullSubjectData = async () => {
+      setIsLoading(true);
 
-  try {
-    const { data } = await api.get(`/modulos/${subjectId}`);
+      try {
+        const { data } = await api.get(`/modulos/${subjectId}`);
 
-    setSubject(data.subject);
-    setThemes(data.themes);
+        setSubject(data.subject);
+        setThemes(data.themes);
 
-    if (data.themes.length > 0) {
-      setSelectedTheme(data.themes[0]);
-    }
-
-  } catch (err) {
-    console.error("Error cargando módulo:", err);
-  } finally {
-    setIsLoading(false);
-  }
-};
+        if (data.themes.length > 0) {
+          setSelectedTheme(data.themes[0]);
+        }
+      } catch (err) {
+        console.error("Error cargando módulo:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchFullSubjectData();
   }, [subjectId, isLoggedIn, router]);
@@ -74,7 +74,7 @@ const fetchFullSubjectData = async () => {
     <AppShell>
       <div className="space-y-6">
         {/* Header de la Materia */}
-        <motion.header 
+        <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-2xl"
@@ -88,7 +88,7 @@ const fetchFullSubjectData = async () => {
               </div>
               <h1 className="text-3xl font-bold text-white">{subject.name}</h1>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-[10px] font-bold text-slate-500 uppercase">Tu avance</p>
@@ -142,7 +142,7 @@ const fetchFullSubjectData = async () => {
           {/* Área de Visualización */}
           <section className="space-y-6">
             {selectedTheme ? (
-              <motion.div 
+              <motion.div
                 key={selectedTheme.id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -150,52 +150,96 @@ const fetchFullSubjectData = async () => {
               >
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-white mb-2">{selectedTheme.title}</h2>
-                  <p className="text-slate-400 text-sm leading-relaxed">{selectedTheme.resumen}</p>
+                  {selectedTheme.resumen && (
+                    <p className="text-slate-400 text-sm leading-relaxed">{selectedTheme.resumen}</p>
+                  )}
                 </div>
 
                 <div className="grid gap-6">
-                  {/* Reproductor de Video */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-blue-400">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                        <path d="M10 8a2 2 0 100 4 2 2 0 000-4z" />
-                      </svg>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Sesión Grabada</span>
-                    </div>
-                    <div className="aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-                      <iframe
-                        className="h-full w-full"
-                        src={selectedTheme.video_url}
-                        title={selectedTheme.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  </div>
-
-                  {/* Recursos Adicionales */}
-                  <div className="rounded-2xl border border-white/5 bg-white/5 p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  {/* 📺 Reproductor de Video (Solo si tiene url) */}
+                  {selectedTheme.video_url && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-blue-400">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                          <path d="M10 8a2 2 0 100 4 2 2 0 000-4z" />
                         </svg>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Sesión Grabada</span>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-white">Guía Práctica y Taller</p>
-                        <p className="text-xs text-slate-500">Documento PDF - Descargable</p>
+                      <div className="aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+                        <iframe
+                          className="h-full w-full"
+                          src={selectedTheme.video_url}
+                          title={selectedTheme.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
                       </div>
                     </div>
-                    <a
-                      href={selectedTheme.workshop_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white transition hover:bg-blue-500"
-                    >
-                      ABRIR TALLER
-                    </a>
-                  </div>
+                  )}
+
+                  {/* 📄 Recursos Adicionales / PDFs (Solo si el array tiene elementos) */}
+                  {selectedTheme.pdfs && selectedTheme.pdfs.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-emerald-400">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Material de Estudio</span>
+                      </div>
+                      
+                      <div className="grid gap-3">
+                        {selectedTheme.pdfs.map((pdfUrl: string, idx: number) => (
+                          <div key={idx} className="rounded-2xl border border-white/5 bg-white/5 p-5 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white">Documento de Soporte #{idx + 1}</p>
+                                <p className="text-xs text-slate-500">Documento PDF - Descargable</p>
+                              </div>
+                            </div>
+                            <a
+                              href={pdfUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-xs font-bold text-white transition hover:bg-white/10"
+                            >
+                              DESCARGAR
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 📝 Encuesta / Evaluación (Solo si tiene survey_url) */}
+                  {selectedTheme.survey_url && (
+                    <div className="rounded-2xl border border-white/5 bg-blue-500/5 p-5 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">Actividad de Cierre / Encuesta</p>
+                          <p className="text-xs text-slate-500">Por favor, completa esta actividad para continuar</p>
+                        </div>
+                      </div>
+                      <a
+                        href={selectedTheme.survey_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white transition hover:bg-blue-500"
+                      >
+                        ABRIR ENCUESTA
+                      </a>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ) : (
